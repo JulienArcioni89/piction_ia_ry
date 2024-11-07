@@ -1,5 +1,4 @@
 # pictionnary
-Cette application est une copie de celle de DIMITRI PERRIET 
 Une application Pictionnary
 
 ## Getting Started
