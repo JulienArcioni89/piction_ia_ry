@@ -34,6 +34,7 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
   void _startPeriodicUpdate() {
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       _fetchTeamComposition();
+      _checkGameStatus();
     });
   }
 
@@ -196,6 +197,30 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
       );
     } else {
       _showMessage("Erreur lors du démarrage de la partie.");
+    }
+  }
+
+  Future<void> _checkGameStatus() async {
+    final response = await http.get(
+      Uri.parse('https://pictioniary.wevox.cloud/api/game_sessions/${widget.sessionId}'),
+      headers: {
+        'Authorization': 'Bearer $jwt',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final gameSession = json.decode(response.body);
+      if (gameSession['status'] == 'challenge') {
+        _timer?.cancel();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChallengeInputScreen(sessionId: widget.sessionId),
+          ),
+        );
+      }
+    } else {
+      _showMessage("Erreur lors de la vérification du statut de la partie.");
     }
   }
 
