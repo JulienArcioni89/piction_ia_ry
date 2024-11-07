@@ -1,5 +1,4 @@
 # pictionnary
-
 Une application Pictionnary
 
 ## Getting Started
