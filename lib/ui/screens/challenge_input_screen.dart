@@ -1,199 +1,334 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pictionnary/ui/screens/game_screen.dart';
+import 'package:pictionnary/ui/screens/loading_screen.dart';
 
 class ChallengeInputScreen extends StatefulWidget {
-  const ChallengeInputScreen({Key? key}) : super(key: key);
+  final String sessionId;
+
+  const ChallengeInputScreen({Key? key, required this.sessionId}) : super(key: key);
 
   @override
   _ChallengeInputScreenState createState() => _ChallengeInputScreenState();
 }
 
 class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
+  final List<Map<String, dynamic>> _challenges = [];
+  bool _loading = false;
+  String? _errorMessage;
+
+  final _formKey = GlobalKey<FormState>();
+  final _firstWordController = TextEditingController();
+  final _secondWordController = TextEditingController();
+  final _forbiddenWordsController = TextEditingController();
+
+  String _firstChoice = 'un';
+  String _secondChoice = 'sur';
+  String _thirdChoice = 'un';
+
+  Future<void> _submitChallenge() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _loading = true;
+        _errorMessage = null;
+      });
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? jwt = prefs.getString('jwt');
+
+      if (jwt == null) {
+        setState(() {
+          _errorMessage = 'Erreur : Utilisateur non authentifié';
+          _loading = false;
+        });
+        return;
+      }
+
+      final url = Uri.parse('https://pictioniary.wevox.cloud/api/game_sessions/${widget.sessionId}/challenges');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwt',
+        },
+        body: json.encode({
+          'first_word': _firstChoice,
+          'second_word': _firstWordController.text,
+          'third_word': _secondChoice,
+          'fourth_word': _thirdChoice,
+          'fifth_word': _secondWordController.text,
+          'forbidden_words': _forbiddenWordsController.text.split(',').map((word) => word.trim()).toList(),
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        setState(() {
+          _challenges.add({
+            'first_word': _firstChoice,
+            'second_word': _firstWordController.text,
+            'third_word': _secondChoice,
+            'fourth_word': _thirdChoice,
+            'fifth_word': _secondWordController.text,
+            'forbidden_words': _forbiddenWordsController.text.split(',').map((word) => word.trim()).toList(),
+          });
+          _loading = false;
+        });
+
+        if (_challenges.length == 3) {
+          Navigator.pop(context);
+        } else {
+          _clearForm();
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'Erreur lors de l\'envoi du challenge (${response.body})';
+          _loading = false;
+        });
+      }
+    }
+  }
+
+  void _clearForm() {
+    _firstWordController.clear();
+    _secondWordController.clear();
+    _forbiddenWordsController.clear();
+  }
+
+  void _showChallengeModal() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Ajouter un challenge'),
+        content: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                value: _firstChoice,
+                items: ['un', 'une'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _firstChoice = value!;
+                  });
+                },
+                decoration: const InputDecoration(labelText: 'Premier choix (un/une)'),
+              ),
+              TextFormField(
+                controller: _firstWordController,
+                decoration: const InputDecoration(labelText: 'Premier mot'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Veuillez entrer le premier mot';
+                  }
+                  return null;
+                },
+              ),
+              DropdownButtonFormField<String>(
+                value: _secondChoice,
+                items: ['sur', 'dans'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _secondChoice = value!;
+                  });
+                },
+                decoration: const InputDecoration(labelText: 'Troisième choix (sur/dans)'),
+              ),
+              DropdownButtonFormField<String>(
+                value: _thirdChoice,
+                items: ['un', 'une'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _thirdChoice = value!;
+                  });
+                },
+                decoration: const InputDecoration(labelText: 'Quatrième choix (un/une)'),
+              ),
+              TextFormField(
+                controller: _secondWordController,
+                decoration: const InputDecoration(labelText: 'Deuxième mot'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Veuillez entrer le deuxième mot';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _forbiddenWordsController,
+                decoration: const InputDecoration(labelText: 'Mots interdits (séparés par des virgules)'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Veuillez entrer les mots interdits';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: _submitChallenge,
+            child: const Text('Soumettre'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _checkGameStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? jwt = prefs.getString('jwt');
+
+    if (jwt == null) {
+      setState(() {
+        _errorMessage = 'Erreur : Utilisateur non authentifié';
+      });
+      return;
+    }
+
+    final url = Uri.parse('https://pictioniary.wevox.cloud/api/game_sessions/${widget.sessionId}');
+    while (true) {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $jwt',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final gameData = json.decode(response.body);
+        if (gameData['status'] == 'drawing') {
+          Navigator.pushReplacementNamed(context, '/game_screen');
+          break;
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'Erreur lors de la vérification du statut de la partie';
+        });
+        break;
+      }
+
+      await Future.delayed(const Duration(seconds: 5));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
         title: const Text('Saisie des challenges'),
         centerTitle: true,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showChallengeModal,
+        child: const Icon(Icons.add),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Carte de challenge (déjà existante)
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Challenge #1',
-                            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                              fontWeight: FontWeight.bold,
+            if (_challenges.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Challenges créés: ${_challenges.length}/3', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  ..._challenges.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    Map<String, dynamic> challenge = entry.value;
+
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      elevation: 3,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Challenge ${index + 1}',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Une poule sur un mur',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8.0,
-                            children: [
-                              Chip(
-                                label: const Text('Poulet'),
-                                backgroundColor: Colors.red,
-                                labelStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Chip(
-                                label: const Text('Volaille'),
-                                backgroundColor: Colors.red,
-                                labelStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Chip(
-                                label: const Text('Oiseau'),
-                                backgroundColor: Colors.red,
-                                labelStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                            Text(
+                              '${challenge['first_word']} ${challenge['second_word']} ${challenge['third_word']} ${challenge['fourth_word']} ${challenge['fifth_word']}',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              children: (challenge['forbidden_words'] as List<String>).map((word) {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    word,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () {
-                        // Ajouter la logique de suppression ici
-                      },
-                    ),
-                  ],
+                    );
+                  }),
+                ],
+              ),
+            if (_errorMessage != null)
+              Text(
+                _errorMessage!,
+                style: const TextStyle(color: Colors.red),
+              ),
+            const SizedBox(height: 16),
+            if (_loading) const CircularProgressIndicator(),
+            if (_challenges.length == 3)
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/loading_screen');
+                    _checkGameStatus();
+                  },
+                  child: const Text('Envoyer'),
                 ),
               ),
-            ),
-            const Spacer(),
-            FloatingActionButton(
-              onPressed: () {
-                _showAddChallengeModal(context); // Afficher la modal
-              },
-              child: const Icon(Icons.add),
-            ),
           ],
         ),
       ),
-    );
-  }
-
-  // Fonction pour afficher la modal
-  void _showAddChallengeModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
-      ),
-      builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            top: 16.0,
-            left: 16.0,
-            right: 16.0,
-          ),
-          child: _buildAddChallengeForm(),
-        );
-      },
-    );
-  }
-
-  // Formulaire pour ajouter un nouveau challenge
-  Widget _buildAddChallengeForm() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Text(
-          'Ajout d’un challenge',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        ToggleButtons(
-          isSelected: [true, false],
-          borderRadius: BorderRadius.circular(20),
-          children: const [
-            Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("UN")),
-            Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("UNE")),
-          ],
-          onPressed: (index) {
-            // Gestion de l'état des boutons
-          },
-        ),
-        const SizedBox(height: 16),
-        const TextField(
-          decoration: InputDecoration(
-            labelText: 'Votre premier mot',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 16),
-        ToggleButtons(
-          isSelected: [true, false],
-          borderRadius: BorderRadius.circular(20),
-          children: const [
-            Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("SUR")),
-            Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("DANS")),
-          ],
-          onPressed: (index) {
-            // Gestion de l'état des boutons
-          },
-        ),
-        const SizedBox(height: 16),
-        ToggleButtons(
-          isSelected: [true, false],
-          borderRadius: BorderRadius.circular(20),
-          children: const [
-            Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("UN")),
-            Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text("UNE")),
-          ],
-          onPressed: (index) {
-            // Gestion de l'état des boutons
-          },
-        ),
-        const SizedBox(height: 16),
-        const TextField(
-          decoration: InputDecoration(
-            labelText: 'Votre deuxième mot',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: () {
-            // Logique pour ajouter le challenge
-          },
-          child: const Text('Ajouter'),
-        ),
-        const SizedBox(height: 16),
-      ],
     );
   }
 }

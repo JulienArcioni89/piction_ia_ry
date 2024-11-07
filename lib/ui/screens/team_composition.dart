@@ -5,6 +5,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pictionnary/ui/screens/challenge_input_screen.dart';
 
 class TeamCompositionScreen extends StatefulWidget {
   final String sessionId;
@@ -187,6 +188,12 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
 
     if (response.statusCode == 200) {
       _showMessage("La partie a commencé !");
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChallengeInputScreen(sessionId: widget.sessionId),
+        ),
+      );
     } else {
       _showMessage("Erreur lors du démarrage de la partie.");
     }
@@ -247,7 +254,7 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              'La partie sera lancée automatiquement une fois les joueurs au complet',
+              'La partie sera lancée par l\'hôte une fois les joueurs au complet',
               style: Theme.of(context).textTheme.bodySmall,
               textAlign: TextAlign.center,
             ),
