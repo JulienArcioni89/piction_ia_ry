@@ -72,7 +72,10 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
             'third_word': _secondChoice,
             'fourth_word': _thirdChoice,
             'fifth_word': _secondWordController.text,
-            'forbidden_words': _forbiddenWordsController.text.split(',').map((word) => word.trim()).toList(),
+            'forbidden_words': _forbiddenWordsController.text
+                .split(',')
+                .map((word) => word.trim())
+                .toList(),
           });
           _loading = false;
           print("Session ID challenge : ${widget.sessionId}");
@@ -102,7 +105,14 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Ajouter un challenge'),
+        backgroundColor: Colors.black87,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        title: const Text(
+          'Ajouter un challenge',
+          style: TextStyle(color: Colors.white),
+        ),
         content: Form(
           key: _formKey,
           child: Column(
@@ -113,19 +123,42 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
                 items: ['un', 'une'].map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value),
+                    child: Text(value, style: const TextStyle(color: Colors.white)),
                   );
                 }).toList(),
+                dropdownColor: Colors.black87,
+                style: const TextStyle(color: Colors.white),
+                iconEnabledColor: Colors.white,
                 onChanged: (value) {
                   setState(() {
                     _firstChoice = value!;
                   });
                 },
-                decoration: const InputDecoration(labelText: 'Premier choix (un/une)'),
+                decoration: const InputDecoration(
+                  labelText: 'Premier choix (un/une)',
+                  labelStyle: TextStyle(color: Colors.white70),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white54),
+                  ),
+                ),
               ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _firstWordController,
-                decoration: const InputDecoration(labelText: 'Premier mot'),
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Premier mot',
+                  labelStyle: TextStyle(color: Colors.white70),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white54),
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez entrer le premier mot';
@@ -133,39 +166,76 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _secondChoice,
                 items: ['sur', 'dans'].map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value),
+                    child: Text(value, style: const TextStyle(color: Colors.white)),
                   );
                 }).toList(),
+                dropdownColor: Colors.black87,
+                style: const TextStyle(color: Colors.white),
+                iconEnabledColor: Colors.white,
                 onChanged: (value) {
                   setState(() {
                     _secondChoice = value!;
                   });
                 },
-                decoration: const InputDecoration(labelText: 'Troisième choix (sur/dans)'),
+                decoration: const InputDecoration(
+                  labelText: 'Troisième choix (sur/dans)',
+                  labelStyle: TextStyle(color: Colors.white70),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white54),
+                  ),
+                ),
               ),
+              const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _thirdChoice,
                 items: ['un', 'une'].map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value),
+                    child: Text(value, style: const TextStyle(color: Colors.white)),
                   );
                 }).toList(),
+                dropdownColor: Colors.black87,
+                style: const TextStyle(color: Colors.white),
+                iconEnabledColor: Colors.white,
                 onChanged: (value) {
                   setState(() {
                     _thirdChoice = value!;
                   });
                 },
-                decoration: const InputDecoration(labelText: 'Quatrième choix (un/une)'),
+                decoration: const InputDecoration(
+                  labelText: 'Quatrième choix (un/une)',
+                  labelStyle: TextStyle(color: Colors.white70),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white54),
+                  ),
+                ),
               ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _secondWordController,
-                decoration: const InputDecoration(labelText: 'Deuxième mot'),
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Deuxième mot',
+                  labelStyle: TextStyle(color: Colors.white70),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white54),
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez entrer le deuxième mot';
@@ -173,9 +243,20 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _forbiddenWordsController,
-                decoration: const InputDecoration(labelText: '3 Mots interdits (mot1,mot2,mot3)'),
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: '3 Mots interdits (mot1,mot2,mot3)',
+                  labelStyle: TextStyle(color: Colors.white70),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white54),
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez entrer les mots interdits';
@@ -189,9 +270,12 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
+            child: const Text('Annuler', style: TextStyle(color: Colors.white70)),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.pinkAccent,
+            ),
             onPressed: _submitChallenge,
             child: const Text('Soumettre'),
           ),
@@ -223,11 +307,6 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
       if (response.statusCode == 200) {
         final gameData = json.decode(response.body);
         if (gameData['status'] == 'drawing') {
-            /*Navigator.pushReplacementNamed(
-              context,
-              '/game_screen',
-              arguments: widget.sessionId,
-            );*/
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -250,99 +329,148 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: const Text('Saisie des challenges'),
         centerTitle: true,
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showChallengeModal,
+        backgroundColor: Colors.pinkAccent,
         child: const Icon(Icons.add),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (_challenges.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Challenges créés: ${_challenges.length}/3', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  ..._challenges.asMap().entries.map((entry) {
-                    int index = entry.key;
-                    Map<String, dynamic> challenge = entry.value;
-
-                    return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 8.0),
-                      elevation: 3,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Challenge ${index + 1}',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '${challenge['first_word']} ${challenge['second_word']} ${challenge['third_word']} ${challenge['fourth_word']} ${challenge['fifth_word']}',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8,
-                              children: (challenge['forbidden_words'] as List<String>).map((word) {
-                                return Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    word,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ],
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0F0C29), Color(0xFF302B63), Color(0xFF24243E)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_challenges.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Challenges créés: ${_challenges.length}/3',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                    );
-                  }),
+                      const SizedBox(height: 10),
+                      ..._challenges.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final challenge = entry.value;
+
+                        return Container(
+                          width: double.infinity, // Force la largeur à 100% du parent
+                          margin: const EdgeInsets.only(top: 8, bottom: 8),
+                          child: Card(
+                            color: Colors.black54,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 3,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Challenge ${index + 1}',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${challenge['first_word']} ${challenge['second_word']} '
+                                        '${challenge['third_word']} ${challenge['fourth_word']} '
+                                        '${challenge['fifth_word']}',
+                                    style: const TextStyle(fontSize: 16, color: Colors.white70),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Wrap(
+                                    spacing: 8,
+                                    children: (challenge['forbidden_words'] as List<String>).map((word) {
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          word,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                if (_errorMessage != null) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ],
-              ),
-            if (_errorMessage != null)
-              Text(
-                _errorMessage!,
-                style: const TextStyle(color: Colors.red),
-              ),
-            const SizedBox(height: 16),
-            if (_loading) const CircularProgressIndicator(),
-            if (_challenges.length == 3)
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/loading_screen',
-                      arguments: widget.sessionId,
-                    );
-                    //Navigator.pushNamed(context, '/loading_screen');
-                    _checkGameStatus();
-                  },
-                  child: const Text('Envoyer'),
-                ),
-              ),
-          ],
+                const SizedBox(height: 16),
+                if (_loading) const CircularProgressIndicator(color: Colors.white),
+                if (_challenges.length == 3)
+                  Center(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pinkAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/loading_screen',
+                          arguments: widget.sessionId,
+                        );
+                        _checkGameStatus();
+                      },
+                      child: const Text('Envoyer'),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );

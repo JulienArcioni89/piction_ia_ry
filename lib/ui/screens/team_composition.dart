@@ -73,7 +73,6 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
       List<dynamic> blueTeamIds = gameSession['blue_team'] ?? [];
       List<dynamic> redTeamIds = gameSession['red_team'] ?? [];
       creatorId = gameSession['player_id'].toString(); // ID of the session creator
-      //print("Session ID partie : ${widget.sessionId}");
 
       List<String> blueTeamNames = await Future.wait(blueTeamIds.map((id) => _fetchPlayerName(id)));
       List<String> redTeamNames = await Future.wait(redTeamIds.map((id) => _fetchPlayerName(id)));
@@ -135,6 +134,9 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
                         _joinTeam("blue");
                         Navigator.of(context).pop();
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pinkAccent,
+                      ),
                       child: const Text('Rejoindre l\'équipe Bleue'),
                     ),
                   if (canJoinRed)
@@ -143,6 +145,9 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
                         _joinTeam("red");
                         Navigator.of(context).pop();
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pinkAccent,
+                      ),
                       child: const Text('Rejoindre l\'équipe Rouge'),
                     ),
                 ],
@@ -242,49 +247,81 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
             Navigator.of(context).pop();
           },
         ),
-        title: const Text('Composition des équipes'),
+        title: const Text(
+          'Composition des équipes',
+          style: TextStyle(
+            color: Colors.pinkAccent,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            Text(
-              'Equipe Bleue',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 10),
-            _buildTeamTile(context, color: Colors.blue, players: blueTeam),
-            const SizedBox(height: 40),
-            Text(
-              'Equipe Rouge',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 10),
-            _buildTeamTile(context, color: Colors.red, players: redTeam),
-            const Spacer(),
-            if (isCreator && canStartGame)
-              ElevatedButton(
-                onPressed: _startGame,
-                child: const Text('Lancer la partie'),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0F0C29), Color(0xFF302B63), Color(0xFF24243E)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              Text(
+                'Equipe Bleue',
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white),
               ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () {
-                _showQRCodeDialog(context, widget.sessionId);
-              },
-              icon: const Icon(Icons.qr_code),
-              label: const Text('Inviter des amis'),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'La partie sera lancée par l\'hôte une fois les joueurs au complet',
-              style: Theme.of(context).textTheme.bodySmall,
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: 10),
+              _buildTeamTile(context, color: Colors.pinkAccent, players: blueTeam),
+              const SizedBox(height: 40),
+              Text(
+                'Equipe Rouge',
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white),
+              ),
+              const SizedBox(height: 10),
+              _buildTeamTile(context, color: Colors.pinkAccent, players: redTeam),
+              const Spacer(),
+              if (isCreator && canStartGame)
+                ElevatedButton(
+                  onPressed: _startGame,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.pinkAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Lancer la partie', style: TextStyle(color: Colors.white)),
+                ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: () {
+                  _showQRCodeDialog(context, widget.sessionId);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pinkAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(Icons.qr_code, color: Colors.white),
+                label: const Text('Inviter des amis', style: TextStyle(color: Colors.white)),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'La partie sera lancée par l\'hôte une fois les joueurs au complet',
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white70),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -338,7 +375,10 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
               children: [
                 Text(
                   'Invitez vos amis en partageant ce QR code !',
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                    color: Colors.pinkAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
@@ -353,7 +393,10 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Fermer'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.pinkAccent,
+                  ),
+                  child: const Text('Fermer', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -361,5 +404,4 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
         );
       },
     );
-  }
-}
+  }}
