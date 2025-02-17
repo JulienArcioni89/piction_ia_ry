@@ -113,6 +113,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF121212),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -121,23 +122,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
               'PICTION.IA.RY',
               style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                 fontSize: 36,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 20),
             Text(
               'Bonjour ${userName ?? ''}',
-              style: Theme.of(context).textTheme.headlineSmall,
+              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                color: Colors.white70,
+              ),
             ),
             const SizedBox(height: 40),
             _loading
-                ? const CircularProgressIndicator()
+                ? const CircularProgressIndicator(color: Colors.pinkAccent)
                 : ElevatedButton(
               onPressed: _createGameSession,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 50, vertical: 15),
+                backgroundColor: Colors.pinkAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              child: const Text('Nouvelle partie'),
+              child: const Text('Nouvelle partie', style: TextStyle(color: Colors.white)),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
@@ -147,9 +156,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 30, vertical: 15),
+                backgroundColor: Colors.pinkAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              icon: const Icon(Icons.qr_code),
-              label: const Text('Rejoindre une partie'),
+              icon: const Icon(Icons.qr_code, color: Colors.white),
+              label: const Text('Rejoindre une partie', style: TextStyle(color: Colors.white)),
             ),
             const SizedBox(height: 20),
             _errorMessage != null
@@ -168,6 +181,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (BuildContext context) {
         return QRScannerModal(onScanComplete: _joinGameSession);
       },
@@ -198,12 +215,16 @@ class _QRScannerModalState extends State<QRScannerModal> {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
+      decoration: const BoxDecoration(
+        color: Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       child: Column(
         children: [
           const SizedBox(height: 20),
           const Text(
             'Scannez le code QR pour rejoindre la partie',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           const SizedBox(height: 20),
           Expanded(
@@ -211,7 +232,7 @@ class _QRScannerModalState extends State<QRScannerModal> {
               key: qrKey,
               onQRViewCreated: _onQRViewCreated,
               overlay: QrScannerOverlayShape(
-                borderColor: Colors.blue,
+                borderColor: Colors.pinkAccent,
                 borderRadius: 10,
                 borderLength: 30,
                 borderWidth: 10,
