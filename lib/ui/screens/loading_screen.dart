@@ -5,24 +5,27 @@ class LoadingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final sessionId = ModalRoute.of(context)?.settings.arguments as String?;
+
     return Scaffold(
-      backgroundColor: Colors.grey[300], // Fond gris
+      backgroundColor: Colors.grey[300],
       body: Center(
         child: Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
           ),
-          elevation: 4,  // Effet d'ombre pour la carte
+          elevation: 4,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
             child: Column(
-              mainAxisSize: MainAxisSize.min,  // Taille ajustée au contenu
+              mainAxisSize: MainAxisSize.min,
               children: [
                 // Icône de chargement
                 const CircularProgressIndicator(
-                  color: Colors.black, // Couleur du spinner
+                  color: Colors.black,
                 ),
-                const SizedBox(height: 20),  // Espace entre le spinner et le texte
+                const SizedBox(height: 20),
                 // Texte d'attente
                 Text(
                   'En attente des autres joueurs',

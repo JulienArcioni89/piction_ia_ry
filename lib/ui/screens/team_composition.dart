@@ -73,6 +73,7 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
       List<dynamic> blueTeamIds = gameSession['blue_team'] ?? [];
       List<dynamic> redTeamIds = gameSession['red_team'] ?? [];
       creatorId = gameSession['player_id'].toString(); // ID of the session creator
+      //print("Session ID partie : ${widget.sessionId}");
 
       List<String> blueTeamNames = await Future.wait(blueTeamIds.map((id) => _fetchPlayerName(id)));
       List<String> redTeamNames = await Future.wait(redTeamIds.map((id) => _fetchPlayerName(id)));

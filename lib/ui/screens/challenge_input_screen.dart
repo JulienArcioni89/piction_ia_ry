@@ -75,6 +75,7 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
             'forbidden_words': _forbiddenWordsController.text.split(',').map((word) => word.trim()).toList(),
           });
           _loading = false;
+          print("Session ID challenge : ${widget.sessionId}");
         });
 
         if (_challenges.length == 3) {
@@ -174,7 +175,7 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
               ),
               TextFormField(
                 controller: _forbiddenWordsController,
-                decoration: const InputDecoration(labelText: 'Mots interdits (séparés par des virgules)'),
+                decoration: const InputDecoration(labelText: '3 Mots interdits (mot1,mot2,mot3)'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez entrer les mots interdits';
@@ -222,7 +223,17 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
       if (response.statusCode == 200) {
         final gameData = json.decode(response.body);
         if (gameData['status'] == 'drawing') {
-          Navigator.pushReplacementNamed(context, '/game_screen');
+            /*Navigator.pushReplacementNamed(
+              context,
+              '/game_screen',
+              arguments: widget.sessionId,
+            );*/
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GameScreen(sessionId: widget.sessionId),
+            ),
+          );
           break;
         }
       } else {
@@ -320,7 +331,12 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/loading_screen');
+                    Navigator.pushNamed(
+                      context,
+                      '/loading_screen',
+                      arguments: widget.sessionId,
+                    );
+                    //Navigator.pushNamed(context, '/loading_screen');
                     _checkGameStatus();
                   },
                   child: const Text('Envoyer'),

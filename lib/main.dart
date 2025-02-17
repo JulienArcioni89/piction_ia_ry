@@ -71,7 +71,7 @@ class MyApp extends StatelessWidget {
       home: const SplashScreen(),
       routes: {
         '/loading_screen': (context) => LoadingScreen(),
-        '/game_screen': (context) => GameScreen(),
+        '/game_screen': (context) => GameScreen(sessionId: '',),
         '/challenge_input_screen': (context) => ChallengeInputScreen(sessionId: ''),
       },
     );
