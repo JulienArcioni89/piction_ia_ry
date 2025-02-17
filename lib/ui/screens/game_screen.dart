@@ -57,7 +57,6 @@ class _GameScreenState extends State<GameScreen> {
         final rawData = json.decode(response.body);
 
         if (rawData is List) {
-          // On normalise la forme de forbidden_words ici
           final processed = rawData.map((challenge) {
             final raw = challenge['forbidden_words'];
             challenge['forbidden_words'] = _normalizeForbiddenWords(raw);
@@ -211,14 +210,34 @@ class _GameScreenState extends State<GameScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mes challenges à relever'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Saisie des challenges',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         centerTitle: true,
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF0F0C29), Color(0xFF302B63), Color(0xFF24243E)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.deepPurple, Colors.pinkAccent],
+            colors: [Color(0xFF0F0C29), Color(0xFF302B63), Color(0xFF24243E)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -243,12 +262,12 @@ class _GameScreenState extends State<GameScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // Carte du challenge
                 Card(
-                  color: Colors.white70,
+                  color: Colors.black54,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
                   ),
+                  elevation: 8,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -259,42 +278,63 @@ class _GameScreenState extends State<GameScreen> {
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
+                            color: Colors.white,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           _buildChallengePhrase(challenge),
-                          style: const TextStyle(fontSize: 16),
+                          style: const TextStyle(fontSize: 16, color: Colors.white),
                         ),
                         const SizedBox(height: 8),
-                        // Affichage normal des mots interdits
                         Text(
                           'Mots interdits : ${_buildForbiddenString(challenge['forbidden_words'])}',
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Prompt (champ de saisie)
                 TextField(
                   controller: _promptController,
-                  decoration: InputDecoration(
-                    labelText: 'Décris ton image (prompt)',
-                    filled: true,
-                    fillColor: Colors.white70,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
+                  style: const TextStyle(color: Colors.white),
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.done,
-                  autofocus: true, // Force l’apparition du clavier
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    // Toujours afficher le label au-dessus
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    // Label en semi-transparent pour un look plus doux
+                    labelText: 'Décris ton image (prompt)',
+                    labelStyle: const TextStyle(color: Colors.white70, fontSize: 14),
+
+                    // Fond légèrement translucide
+                    filled: true,
+                    fillColor: Colors.black26,
+
+                    // Bordures arrondies
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none, // pour retirer le contour par défaut
+                    ),
+                    // Bordure quand ce n'est pas focus
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.white24),
+                    ),
+                    // Bordure quand c'est focus
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.white54),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 10),
-
-                // Image générée
                 if (_currentImageUrl != null)
                   Container(
                     height: 200,
@@ -310,7 +350,7 @@ class _GameScreenState extends State<GameScreen> {
                         _currentImageUrl!,
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
-                          return const Center(child: Text('Erreur de chargement'));
+                          return const Center(child: Text('Erreur de chargement', style: TextStyle(color: Colors.white)));
                         },
                       ),
                     ),
@@ -332,21 +372,20 @@ class _GameScreenState extends State<GameScreen> {
                     ),
                   ),
                 const SizedBox(height: 10),
-
                 Row(
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orangeAccent,
+                          backgroundColor: Colors.pinkAccent,
                           minimumSize: const Size(double.infinity, 50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         onPressed: _generateImage,
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Générer / Régénérer (-50pts)'),
+                        icon: const Icon(Icons.refresh, color: Colors.white),
+                        label: const Text('Générer / Régénérer (-50pts)', style: TextStyle(color: Colors.white)),
                       ),
                     ),
                   ],
@@ -354,15 +393,15 @@ class _GameScreenState extends State<GameScreen> {
                 const SizedBox(height: 10),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.pinkAccent,
                     minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   onPressed: _sendToGuesser,
-                  icon: const Icon(Icons.send),
-                  label: const Text('Envoyer au devineur'),
+                  icon: const Icon(Icons.send, color: Colors.white),
+                  label: const Text('Envoyer au devineur', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -372,7 +411,6 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  /// Transforme la liste de mots interdits en une chaîne lisible
   String _buildForbiddenString(dynamic val) {
     if (val is List<String>) {
       return val.join(', ');
@@ -384,7 +422,6 @@ class _GameScreenState extends State<GameScreen> {
   }
 }
 
-/// Écran final après tout
 class DrawingScreen extends StatelessWidget {
   const DrawingScreen({Key? key}) : super(key: key);
 
@@ -392,13 +429,23 @@ class DrawingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All done !'),
-        backgroundColor: Colors.deepPurple,
+        title: const Text('Vous avez fini !'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
-      body: const Center(
-        child: Text(
-          'Il n\'y a plus de challenges à dessiner !',
-          style: TextStyle(fontSize: 18),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0F0C29), Color(0xFF302B63), Color(0xFF24243E)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: const Center(
+          child: Text(
+            'Il n\'y a plus de challenges à dessiner !',
+            style: TextStyle(fontSize: 18, color: Colors.white),
+          ),
         ),
       ),
     );
