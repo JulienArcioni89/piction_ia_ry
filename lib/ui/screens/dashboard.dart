@@ -113,65 +113,80 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'PICTION.IA.RY',
-              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                fontSize: 36,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Bonjour ${userName ?? ''}',
-              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                color: Colors.white70,
-              ),
-            ),
-            const SizedBox(height: 40),
-            _loading
-                ? const CircularProgressIndicator(color: Colors.pinkAccent)
-                : ElevatedButton(
-              onPressed: _createGameSession,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 50, vertical: 15),
-                backgroundColor: Colors.pinkAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+      extendBodyBehindAppBar: true,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0F0C29), Color(0xFF302B63), Color(0xFF24243E)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'PICTION.IA.RY',
+                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                    fontSize: 36,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              child: const Text('Nouvelle partie', style: TextStyle(color: Colors.white)),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () {
-                _openQRScanner(context);
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 30, vertical: 15),
-                backgroundColor: Colors.pinkAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 20),
+                Text(
+                  'Bonjour ${userName ?? ''}',
+                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                    color: Colors.white70,
+                  ),
                 ),
-              ),
-              icon: const Icon(Icons.qr_code, color: Colors.white),
-              label: const Text('Rejoindre une partie', style: TextStyle(color: Colors.white)),
+                const SizedBox(height: 40),
+                _loading
+                    ? const CircularProgressIndicator(color: Color(0xFFB39DDB))
+                    : ElevatedButton(
+                  onPressed: _createGameSession,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    backgroundColor: Color(0xFFB39DDB),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Nouvelle partie',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: () => _openQRScanner(context),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    backgroundColor: Color(0xFFB39DDB),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: const Icon(Icons.qr_code, color: Colors.white),
+                  label: const Text(
+                    'Rejoindre une partie',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                if (_errorMessage != null)
+                  Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+              ],
             ),
-            const SizedBox(height: 20),
-            _errorMessage != null
-                ? Text(
-              _errorMessage!,
-              style: const TextStyle(color: Colors.red),
-            )
-                : Container(),
-          ],
+          ),
         ),
       ),
     );
@@ -232,7 +247,7 @@ class _QRScannerModalState extends State<QRScannerModal> {
               key: qrKey,
               onQRViewCreated: _onQRViewCreated,
               overlay: QrScannerOverlayShape(
-                borderColor: Colors.pinkAccent,
+                borderColor: Color(0xFFB39DDB),
                 borderRadius: 10,
                 borderLength: 30,
                 borderWidth: 10,

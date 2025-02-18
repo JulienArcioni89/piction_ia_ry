@@ -227,7 +227,7 @@ class _GameScreenState extends State<GameScreen> {
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF0F0C29), Color(0xFF302B63), Color(0xFF24243E)],
+              colors: [Color(0xFF0F0C29), Color(0xFF302B63)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -377,7 +377,7 @@ class _GameScreenState extends State<GameScreen> {
                     Expanded(
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.pinkAccent,
+                          backgroundColor: Color(0xFFB39DDB),
                           minimumSize: const Size(double.infinity, 50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -393,7 +393,7 @@ class _GameScreenState extends State<GameScreen> {
                 const SizedBox(height: 10),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pinkAccent,
+                    backgroundColor: Color(0xFFB39DDB),
                     minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),

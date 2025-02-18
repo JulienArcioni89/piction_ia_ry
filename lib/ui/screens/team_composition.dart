@@ -135,7 +135,7 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
                         Navigator.of(context).pop();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pinkAccent,
+                        backgroundColor: Color(0xFF004B80),
                       ),
                       child: const Text('Rejoindre l\'équipe Bleue'),
                     ),
@@ -146,7 +146,7 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
                         Navigator.of(context).pop();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pinkAccent,
+                        backgroundColor: Color(0xFFFF6F61),
                       ),
                       child: const Text('Rejoindre l\'équipe Rouge'),
                     ),
@@ -240,17 +240,16 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
     bool canStartGame = blueTeam.length == 2 && redTeam.length == 2;
 
     return Scaffold(
+      extendBodyBehindAppBar: true, // Le dégradé passe derrière l'AppBar
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
           'Composition des équipes',
           style: TextStyle(
-            color: Colors.pinkAccent,
+            color: Colors.white, // Titre blanc pour contraster
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
@@ -269,58 +268,62 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
             end: Alignment.bottomRight,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              Text(
-                'Equipe Bleue',
-                style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white),
-              ),
-              const SizedBox(height: 10),
-              _buildTeamTile(context, color: Colors.pinkAccent, players: blueTeam),
-              const SizedBox(height: 40),
-              Text(
-                'Equipe Rouge',
-                style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white),
-              ),
-              const SizedBox(height: 10),
-              _buildTeamTile(context, color: Colors.pinkAccent, players: redTeam),
-              const Spacer(),
-              if (isCreator && canStartGame)
-                ElevatedButton(
-                  onPressed: _startGame,
+        child: SafeArea(
+          // Évite que le contenu passe sous l'encoche (iOS) ou barre de statut (Android)
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                Text(
+                  'Equipe Bleue',
+                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white),
+                ),
+                const SizedBox(height: 10),
+                _buildTeamTile(context, color: Color(0xFFB39DDB), players: blueTeam),
+                const SizedBox(height: 40),
+                Text(
+                  'Equipe Rouge',
+                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white),
+                ),
+                const SizedBox(height: 10),
+                _buildTeamTile(context, color: Color(0xFFB39DDB), players: redTeam),
+                const Spacer(),
+                if (isCreator && canStartGame)
+                  ElevatedButton(
+                    onPressed: _startGame,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFB39DDB),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Lancer la partie',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: () => _showQRCodeDialog(context, widget.sessionId),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pinkAccent,
+                    backgroundColor: Color(0xFFB39DDB),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('Lancer la partie', style: TextStyle(color: Colors.white)),
+                  icon: const Icon(Icons.qr_code, color: Colors.white),
+                  label: const Text('Afficher le QR Code', style: TextStyle(color: Colors.white)),
                 ),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () {
-                  _showQRCodeDialog(context, widget.sessionId);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pinkAccent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                const SizedBox(height: 20),
+                Text(
+                  'La partie sera lancée par l\'hôte une fois les joueurs au complet',
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white70),
+                  textAlign: TextAlign.center,
                 ),
-                icon: const Icon(Icons.qr_code, color: Colors.white),
-                label: const Text('Inviter des amis', style: TextStyle(color: Colors.white)),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'La partie sera lancée par l\'hôte une fois les joueurs au complet',
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white70),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -376,7 +379,7 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
                 Text(
                   'Invitez vos amis en partageant ce QR code !',
                   style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                    color: Colors.pinkAccent,
+                    color: Color(0xFFB39DDB),
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
@@ -394,7 +397,7 @@ class _TeamCompositionScreenState extends State<TeamCompositionScreen> {
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pinkAccent,
+                    backgroundColor: Color(0xFFB39DDB),
                   ),
                   child: const Text('Fermer', style: TextStyle(color: Colors.white)),
                 ),

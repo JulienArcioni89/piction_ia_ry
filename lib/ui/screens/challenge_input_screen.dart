@@ -274,7 +274,7 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.pinkAccent,
+              backgroundColor: Color(0xFFB39DDB),
             ),
             onPressed: _submitChallenge,
             child: const Text('Soumettre'),
@@ -346,7 +346,7 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showChallengeModal,
-        backgroundColor: Colors.pinkAccent,
+        backgroundColor: Color(0xFFB39DDB),
         child: const Icon(Icons.add),
       ),
       body: Container(
@@ -383,7 +383,7 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
                         final challenge = entry.value;
 
                         return Container(
-                          width: double.infinity, // Force la largeur à 100% du parent
+                          width: double.infinity,
                           margin: const EdgeInsets.only(top: 8, bottom: 8),
                           child: Card(
                             color: Colors.black54,
@@ -452,7 +452,7 @@ class _ChallengeInputScreenState extends State<ChallengeInputScreen> {
                   Center(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pinkAccent,
+                        backgroundColor: Color(0xFFB39DDB),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
