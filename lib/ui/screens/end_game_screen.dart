@@ -18,7 +18,7 @@ class EndGameScreen extends StatelessWidget {
           ),
         ),
         centerTitle: true,
-        automaticallyImplyLeading: false, // Désactive le bouton retour
+        automaticallyImplyLeading: false,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
