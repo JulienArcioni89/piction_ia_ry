@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class LoadingScreen extends StatelessWidget {
-  const LoadingScreen({Key? key}) : super(key: key);
+  final String sessionId;
+
+  const LoadingScreen({Key? key, required this.sessionId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

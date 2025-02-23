@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class GuessScreen extends StatelessWidget {
-  const GuessScreen({Key? key}) : super(key: key);
+  final String sessionId;
+  
+  const GuessScreen({
+    Key? key,
+    required this.sessionId,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'loading_screen.dart';
+import 'drawing_screen.dart';
+import 'guess_screen.dart';
 
 class GameScreen extends StatefulWidget {
   final String sessionId;
@@ -29,9 +32,9 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     _fetchChallenges();
+    _checkGameStatusGuessing();
   }
 
-  /// Requête API pour récupérer mes challenges à dessiner
   Future<void> _fetchChallenges() async {
     setState(() {
       _isLoading = true;
@@ -69,7 +72,7 @@ class _GameScreenState extends State<GameScreen> {
           });
         } else {
           setState(() {
-            _errorMessage = 'Le serveur n’a pas renvoyé de liste de challenges.';
+            _errorMessage = 'Le serveur na pas renvoyé de liste de challenges.';
             _isLoading = false;
           });
         }
@@ -87,13 +90,10 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  /// Transforme 'forbidden_words' en List<String> (si possible)
   List<String> _normalizeForbiddenWords(dynamic raw) {
-    // Déjà une liste
     if (raw is List) {
       return raw.map((e) => e.toString()).toList();
     }
-    // Chaîne encodée JSON => on décode
     if (raw is String) {
       try {
         final decoded = json.decode(raw);
@@ -101,23 +101,19 @@ class _GameScreenState extends State<GameScreen> {
           return decoded.map((e) => e.toString()).toList();
         }
       } catch (_) {
-        // Pas du JSON valide => on la met telle quelle
         return raw.isNotEmpty ? [raw] : [];
       }
       return raw.isNotEmpty ? [raw] : [];
     }
-    // Sinon (null, etc.)
     return [];
   }
 
-  /// Challenge en cours
   Map<String, dynamic>? get _currentChallenge {
     if (_challenges.isEmpty) return null;
     if (_currentChallengeIndex < 0 || _currentChallengeIndex >= _challenges.length) return null;
     return _challenges[_currentChallengeIndex];
   }
 
-  /// Construit la phrase type "un chien sur une moto"
   String _buildChallengePhrase(Map<String, dynamic> c) {
     final list = [
       if (c['first_word'] != null) c['first_word'],
@@ -130,7 +126,6 @@ class _GameScreenState extends State<GameScreen> {
     return phrase.isEmpty ? 'Aucun mot' : phrase;
   }
 
-  /// Génération d’image via POST /draw
   Future<void> _generateImage() async {
     final challenge = _currentChallenge;
     if (challenge == null) return;
@@ -188,7 +183,6 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  /// Envoyer au devineur => challenge suivant ou fin
   void _sendToGuesser() {
     if (_currentChallengeIndex < _challenges.length - 1) {
       setState(() {
@@ -196,14 +190,84 @@ class _GameScreenState extends State<GameScreen> {
         _promptController.clear();
         _currentImageUrl = null;
       });
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const DrawingScreen()),
-      );
     }
   }
 
+  void _finishAndSend() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LoadingScreen(sessionId: widget.sessionId),
+      ),
+    );
+    _checkGameStatusGuessing();
+  }
+
+  Future<void> _checkGameStatusGuessing() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? jwt = prefs.getString('jwt');
+
+    if (jwt == null) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Error: User not authenticated';
+        });
+      }
+      return;
+    }
+
+    final url = Uri.parse('https://pictioniary.wevox.cloud/api/game_sessions/${widget.sessionId}');
+    final timeout = Duration(minutes: 10);
+    final interval = Duration(seconds: 5);
+    print("Début de la vérification du statut pour la session : ${widget.sessionId}");
+
+    try {
+      await Future.doWhile(() async {
+        try {
+          final response = await http.get(
+            url,
+            headers: {
+              'Authorization': 'Bearer $jwt',
+            },
+          );
+
+          if (response.statusCode == 200) {
+            final gameData = json.decode(response.body);
+            print("Statut actuel : ${gameData['status']}");
+            
+            if (gameData['status'] == 'guessing') {
+              //if (mounted) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GuessScreen(sessionId: widget.sessionId),
+                  ),
+                );
+              //}
+              return false; // On arrête la boucle uniquement si on est en mode guessing
+            }
+            return true; // On continue la boucle si le statut n'est pas 'guessing'
+          }
+          
+          print("Erreur ${response.statusCode} : ${response.body}");
+          return true; // On continue la boucle même en cas d'erreur 
+          
+        } catch (e) {
+          print("Erreur lors de la vérification : $e");
+          return true; // On continue la boucle même en cas d'erreur
+        }
+
+        await Future.delayed(interval);
+        return mounted;
+      }).timeout(timeout);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Error: $e';
+        });
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final challenge = _currentChallenge;
@@ -303,27 +367,19 @@ class _GameScreenState extends State<GameScreen> {
                   textInputAction: TextInputAction.done,
                   autofocus: true,
                   decoration: InputDecoration(
-                    // Toujours afficher le label au-dessus
                     floatingLabelBehavior: FloatingLabelBehavior.always,
-                    // Label en semi-transparent pour un look plus doux
                     labelText: 'Décris ton image (prompt)',
                     labelStyle: const TextStyle(color: Colors.white70, fontSize: 14),
-
-                    // Fond légèrement translucide
                     filled: true,
                     fillColor: Colors.black26,
-
-                    // Bordures arrondies
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none, // pour retirer le contour par défaut
+                      borderSide: BorderSide.none,
                     ),
-                    // Bordure quand ce n'est pas focus
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Colors.white24),
                     ),
-                    // Bordure quand c'est focus
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Colors.white54),
@@ -350,7 +406,8 @@ class _GameScreenState extends State<GameScreen> {
                         _currentImageUrl!,
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
-                          return const Center(child: Text('Erreur de chargement', style: TextStyle(color: Colors.white)));
+                          return const Center(
+                              child: Text('Erreur de chargement', style: TextStyle(color: Colors.white)));
                         },
                       ),
                     ),
@@ -391,18 +448,32 @@ class _GameScreenState extends State<GameScreen> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFB39DDB),
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                if (_currentChallengeIndex < _challenges.length - 1)
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFB39DDB),
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
+                    onPressed: _sendToGuesser,
+                    icon: const Icon(Icons.send, color: Colors.white),
+                    label: const Text('Envoyer au devineur', style: TextStyle(color: Colors.white)),
+                  )
+                else
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFB39DDB),
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: _finishAndSend,
+                    icon: const Icon(Icons.send, color: Colors.white),
+                    label: const Text('Terminer et envoyer', style: TextStyle(color: Colors.white)),
                   ),
-                  onPressed: _sendToGuesser,
-                  icon: const Icon(Icons.send, color: Colors.white),
-                  label: const Text('Envoyer au devineur', style: TextStyle(color: Colors.white)),
-                ),
               ],
             ),
           ),
