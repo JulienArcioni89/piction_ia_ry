@@ -233,8 +233,7 @@ class _GameScreenState extends State<GameScreen> {
 
           if (response.statusCode == 200) {
             final gameData = json.decode(response.body);
-            print("Statut actuel : ${gameData['status']}");
-            
+
             if (gameData['status'] == 'guessing') {
               //if (mounted) {
                 Navigator.pushReplacement(
